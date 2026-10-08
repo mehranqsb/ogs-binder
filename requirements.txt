@@ -1,2 +1,3 @@
-ogstools[ogs]
+-r 01_Tunnel_Excavation_Kirsch/requirements.txt
+gmsh
 matplotlib
