@@ -5,6 +5,8 @@
 Binder uses Python 3.11 as specified in `runtime.txt`, and installs
 OGSTools 0.8 and the OGS executable from the root
 `requirements.txt`, plus the system libraries in `apt.txt`.
+The `postBuild` script checks the notebook imports and OGS executable during
+the image build.
 
 ## Run the tunnel example
 
