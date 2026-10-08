@@ -1,5 +1,8 @@
 # OGS examples on Binder
 
+[Open all examples in Binder](https://mybinder.org/v2/gh/mehranqsb/ogs-binder/main).
+Use JupyterLab's left file browser to open folder 01, 02, or 03 and its notebook.
+
 | Example | Launch in your browser |
 | --- | --- |
 | 01 — Tunnel excavation / Kirsch benchmark | [Launch 01](https://mybinder.org/v2/gh/mehranqsb/ogs-binder/main?labpath=01_Tunnel_Excavation_Kirsch%2F01_tunnel_excavation_kirsch.ipynb) |
@@ -51,5 +54,21 @@ if not example.is_dir():
 os.environ["KIRSCH_PROJECT_ROOT"] = str(example.resolve())
 ```
 
+## Why launching Binder can take time
+
+After a new commit is pushed, Binder may need to build a new image and install
+the dependencies again. The first build can take several minutes. Later
+launches of the same commit usually reuse the image, but still need time to
+start a session. Service demand and cache availability can also affect timing.
+
+Expand **Show build logs** on the launch page to follow progress. If the build
+fails, save the last 30–50 lines, including any `ERROR` messages.
+
+Use the **Open all examples** link above to browse the repository, or one of
+the notebook links in the table to open an example directly. A direct notebook
+link needs a complete `?labpath=...` value; a link ending only in `?labpath`
+does not select a notebook. Bookmark the permanent `mybinder.org` launch link
+rather than the temporary Jupyter session address.
+
 Binder sessions are temporary. Download any results you want to keep before
-closing the session. The first build can take several minutes.
+closing the session.

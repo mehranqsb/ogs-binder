@@ -31,13 +31,28 @@ Bookmark this permanent link rather than the temporary Jupyter session address:
 \begin{center}
 \href{https://mybinder.org/v2/gh/mehranqsb/ogs-binder/main?labpath=01_Tunnel_Excavation_Kirsch\%2F01_tunnel_excavation_kirsch.ipynb}{\textbf{Launch the OGS tunnel notebook on Binder}}
 \end{center}
+To browse all three examples, use
+\href{https://mybinder.org/v2/gh/mehranqsb/ogs-binder/main}{\textbf{Open all examples in Binder}}.
+In JupyterLab's left file browser, open folder 01 (Kirsch tunnel),
+02 (LIE/EFPM injection), or 03 (TRM heated tunnel), then double-click its notebook.
+The folders must first be committed and pushed to GitHub; an existing Binder
+session does not automatically receive repository updates.
+
+A direct notebook link needs a complete \texttt{?labpath=...} value.
+A link ending only in \texttt{?labpath} does not select a notebook.
 \begin{enumerate}
 \item Open the link. Wait for the image build and session startup; expand the build logs to follow progress.
 \item When JupyterLab opens, confirm that the tunnel notebook is visible and the Python kernel is connected.
 \item Choose \textbf{Run $\rightarrow$ Run All Cells}. Start with the imports and execute the cells in order.
 \item Wait for mesh generation, project generation, the OGS simulations, and postprocessing. A busy kernel indicates ongoing execution.
 \end{enumerate}
-The first launch after configuration changes can take several minutes. Later launches of the same commit usually reuse the image, but session startup still takes time. Service demand and cache availability affect the duration.
+\section{Why launching Binder can take time}
+After a new commit is pushed, Binder may need to build a new image and install
+the dependencies again. The first build can take several minutes. Later
+launches of the same commit usually reuse the image, but session startup still
+takes time. Service demand and cache availability also affect the duration.
+Expand \textbf{Show build logs} on the launch page to follow progress. If the
+build fails, save the final 30--50 lines, including any ERROR messages.
 \section{Check OGS}
 Open \textbf{File $\rightarrow$ New $\rightarrow$ Terminal} in Binder and run:
 \begin{lstlisting}
