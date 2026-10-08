@@ -1,0 +1,2 @@
+ogstools[ogs]
+matplotlib
