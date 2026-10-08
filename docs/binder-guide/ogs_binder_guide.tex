@@ -1,0 +1,169 @@
+\documentclass[11pt,a4paper]{tubaf-report}
+\usepackage[sans]{tubaf-fonts}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp,graphicx,xurl,booktabs,tabularx,listings}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage[colorlinks=true,linkcolor=black,urlcolor=blue!60!black]{hyperref}
+\definecolor{codebg}{RGB}{245,247,250}
+\lstset{basicstyle=\ttfamily\footnotesize,backgroundcolor=\color{codebg},frame=single,breaklines=true,columns=fullflexible,keepspaces=true,showstringspaces=false,upquote=true}
+\title[OGS on Binder]{OpenGeoSys Training Course}
+\subtitle{Running the Tunnel Excavation Example on Binder}
+\author[Mehran Ghasabeh]{Mehran Ghasabeh}
+\date{October 2026}
+\subject{Practical Notebook Guide}
+\publishers{Institute of Geotechnics, TU Bergakademie Freiberg}
+\titlefoot{Joint OpenGeoSys Training Course -- UFZ, KIGAM, Zhejiang University, and TUBAF}
+\setlength{\logoheadsize}{2.5cm}
+\makeatletter
+\renewcommand{\tubaf@title@logo}{\insertlogo{5.5cm}}
+\makeatother
+\logo{\includegraphics{UFZ_KIGAM_ZJU}}
+\begin{document}
+\maketitle
+\tableofcontents
+\clearpage
+\chapter{Launch and Run}
+Binder starts a temporary online Jupyter environment from the GitHub repository. You can generate the meshes, run OpenGeoSys, and view the Kirsch benchmark plots in a browser without installing OGS locally. An internet connection is required.
+\section{Launch link}
+Bookmark this permanent link rather than the temporary Jupyter session address:
+\begin{center}
+\href{https://mybinder.org/v2/gh/mehranqsb/ogs-binder/main?labpath=01_Tunnel_Excavation_Kirsch\%2F01_tunnel_excavation_kirsch.ipynb}{\textbf{Launch the OGS tunnel notebook on Binder}}
+\end{center}
+\begin{enumerate}
+\item Open the link. Wait for the image build and session startup; expand the build logs to follow progress.
+\item When JupyterLab opens, confirm that the tunnel notebook is visible and the Python kernel is connected.
+\item Choose \textbf{Run $\rightarrow$ Run All Cells}. Start with the imports and execute the cells in order.
+\item Wait for mesh generation, project generation, the OGS simulations, and postprocessing. A busy kernel indicates ongoing execution.
+\end{enumerate}
+The first launch after configuration changes can take several minutes. Later launches of the same commit usually reuse the image, but session startup still takes time. Service demand and cache availability affect the duration.
+\section{Check OGS}
+Open \textbf{File $\rightarrow$ New $\rightarrow$ Terminal} in Binder and run:
+\begin{lstlisting}
+ogs --version
+\end{lstlisting}
+In a notebook cell, check Python and OGSTools with:
+\begin{lstlisting}[language=Python]
+import sys
+import shutil
+import ogstools as ot
+print(sys.version)
+print(shutil.which("ogs"))
+print(ot.__version__)
+\end{lstlisting}
+\section{Save results}
+Simulation files are generated under:
+\begin{lstlisting}
+01_Tunnel_Excavation_Kirsch/_out/
+\end{lstlisting}
+Download results and edited notebooks through JupyterLab before closing the session. Binder is temporary: a later launch does not restore the previous session's changes. To archive all results, run this from the repository root in Binder's terminal, then download the ZIP:
+\begin{lstlisting}
+python -m zipfile -c tunnel_results.zip 01_Tunnel_Excavation_Kirsch/_out
+\end{lstlisting}
+\chapter{Model and Binder Configuration}
+\section{Tunnel example}
+The notebook models a quarter of a circular tunnel under plane-strain conditions in a linearly elastic medium. It compares release of nodal forces with a standard elastic approach and the analytical Kirsch solution, using linear and quadratic elements. An element-deactivation variant is also included.
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}Xl@{}}
+\toprule Parameter & Value \\
+\midrule
+Young's modulus & 5 GPa \\
+Poisson's ratio & 0.30 \\
+Vertical compression magnitude & 20 MPa \\
+Tunnel radius & 6.5 m \\
+Tunnel centre & $(0,-857)$ m \\
+Domain extent from symmetry axes & 70 m \\
+Excavation duration & 2 days \\
+Simulation end time & 4 days \\
+Default linear solver & SparseLU \\
+\bottomrule
+\end{tabularx}
+\end{center}
+Gravity is disabled and the in-situ stress is prescribed. The tunnel centre only locates the mesh. The tension-positive initial stress is $(0,-20,-6,0)$ MPa. Symmetry acts on the left and bottom boundaries, vertical traction on the top, and the right boundary is traction-free. Excavation forces on the tunnel arc decay linearly over two days.
+
+This guide documents the workflow and repository inputs; it does not claim a newly verified numerical run.
+\section{Configuration files}
+All Binder configuration files below belong in the repository root.
+\subsection*{\texttt{runtime.txt}}
+\begin{lstlisting}
+python-3.11
+\end{lstlisting}
+OGSTools 0.8 requires Python 3.11 or newer. This setting avoids the older Python environment used in the initial failed build.
+\subsection*{Root \texttt{requirements.txt}}
+\begin{lstlisting}
+-r 01_Tunnel_Excavation_Kirsch/requirements.txt
+gmsh
+matplotlib
+\end{lstlisting}
+The example's included requirements specify:
+\begin{lstlisting}
+ogstools[ogs]>=0.8,<0.9
+jupyterlab>=4,<5
+\end{lstlisting}
+The OGS extra requests the executable wheel. OGSTools 0.8 provides the notebook's Model and Execution API. These version ranges do not freeze every dependency; future builds can resolve different versions.
+\subsection*{\texttt{apt.txt}}
+\begin{lstlisting}
+libglu1-mesa
+libgl1
+libgomp1
+libxcursor1
+libxinerama1
+libxft2
+libxext6
+\end{lstlisting}
+These supply native runtime and graphics libraries required by the Linux Gmsh wheel. Other required libraries are pulled in as package dependencies or provided by the base image.
+\subsection*{\texttt{postBuild}}
+\begin{lstlisting}[language=bash]
+#!/bin/bash
+set -eu
+python -c "import gmsh; import ogstools; import pyvista; print('Notebook imports OK')"
+ogs --version
+\end{lstlisting}
+This executable script checks imports and OGS during image creation. It detects missing libraries before the notebook opens, but does not execute the full benchmark.
+\section{Publish changes}
+From the local repository directory, run:
+\begin{lstlisting}[language=bash]
+git add requirements.txt apt.txt runtime.txt postBuild README.md
+git commit -m "Configure Binder for the OGS tunnel example"
+git push
+\end{lstlisting}
+Launch a new Binder session after pushing. An existing session does not receive newly added system packages.
+\chapter{Troubleshooting}
+\section{OGSTools cannot be installed}
+For a build error mentioning Python 3.11 or newer and no matching OGSTools distribution, confirm that the root runtime file specifies Python 3.11. Push it and relaunch. Downgrading OGSTools would require adapting the notebook API.
+\section{Gmsh reports a missing library}
+The error \texttt{libXcursor.so.1: cannot open shared object file} indicates a missing native dependency, supplied by \texttt{libxcursor1}. Add the package to \texttt{apt.txt}, push, and launch a new session. Reinstalling the Python package alone does not install this library.
+\section{Project files were not found}
+If the kernel starts at the repository root rather than the example directory, restart it and run this new cell before the original import cell:
+\begin{lstlisting}[language=Python]
+import os
+from pathlib import Path
+example = Path.cwd() / "01_Tunnel_Excavation_Kirsch"
+if not example.is_dir():
+    example = Path.cwd()
+os.environ["KIRSCH_PROJECT_ROOT"] = str(example.resolve())
+\end{lstlisting}
+The selected directory must contain the mesh and project generator scripts.
+\section{A build or run appears stuck}
+Follow the Binder build log. If it fails, save the last 30--50 lines, including ERROR messages. In Jupyter, examine the first failing cell. Do not continue dependent cells after an import failure; resolve it and rerun from the beginning. Mesh generation and multiple simulations take time. Avoid submitting a cell repeatedly while the kernel is busy. If available resources are insufficient, use the local course environment.
+\section{Avoid repeated GitHub authentication}
+Participants only need the launch link. Git authentication is needed to push repository changes. On Ubuntu, authenticate once with GitHub CLI:
+\begin{lstlisting}[language=bash]
+sudo apt update
+sudo apt install gh
+gh auth login --hostname github.com --git-protocol https --web
+gh auth setup-git
+\end{lstlisting}
+Enter the one-time code displayed in your terminal on the GitHub browser page. The code is not sent by email. The credential setup applies to HTTPS repositories on github.com, subject to account permissions; SSH uses separate keys.
+
+GitHub CLI uses a secure system credential store when available and otherwise falls back to a plain-text file. If Git asks directly for an HTTPS password, use a personal access token rather than your account password. Keep tokens and login codes private.
+\section{References}
+\begin{itemize}
+\item \href{https://repo2docker.readthedocs.io/en/latest/configuration/}{Binder/repo2docker configuration}.
+\item \href{https://repo2docker.readthedocs.io/en/latest/configuration/system/}{Python runtime and system packages}.
+\item \href{https://ogstools.opengeosys.org/stable/user-guide/index.html}{OGSTools installation guide}.
+\item \href{https://cli.github.com/manual/gh_auth_login}{GitHub CLI authentication and storage}.
+\item \href{https://cli.github.com/manual/gh_auth_setup-git}{GitHub CLI Git credentials}.
+\end{itemize}
+\end{document}
