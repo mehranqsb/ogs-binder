@@ -2,7 +2,8 @@
 
 [Launch the tunnel excavation notebook on Binder](https://mybinder.org/v2/gh/mehranqsb/ogs-binder/main?labpath=01_Tunnel_Excavation_Kirsch%2F01_tunnel_excavation_kirsch.ipynb)
 
-Binder installs OGSTools 0.8 and the OGS executable from the root
+Binder uses Python 3.11 as specified in `runtime.txt`, and installs
+OGSTools 0.8 and the OGS executable from the root
 `requirements.txt`, plus the system libraries in `apt.txt`.
 
 ## Run the tunnel example
